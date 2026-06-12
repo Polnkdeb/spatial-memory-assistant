@@ -1,0 +1,27 @@
+# Виртуальное окружение
+venv/
+env/
+ENV/
+
+# Кэш Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Сгенерированные данные
+data/frames/
+data/detections.json
+data/index.json
+
+# Видео (если большие)
+data/videos/*.MOV
+data/videos/*.mp4
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Системные
+.DS_Store
+*.log
