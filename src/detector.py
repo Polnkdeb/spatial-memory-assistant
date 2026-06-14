@@ -1,39 +1,54 @@
 import json
 import os
-from ultralytics import YOLO
-import cv2
+
 from tqdm import tqdm
+from ultralytics import YOLO
+
 
 class YOLODetector:
-    def __init__(self, model_name="yolov8n.pt"):
-        self.model = YOLO(model_name)  # предобучен на COCO (80 классов)
-        # COCO классы, которые нас интересуют (сопоставление запросам)
-        self.class_mapping = {
-            "dog": 16,      # класс собаки в COCO
-            "bowl": 44,     # миска – ближе всего к "тарелке"
-            "plate": 44,    # тарелка – тоже миска/чаша
-            "cup": 41,      # кружка
-            # можно добавить другие соответствия
-        }
+    def __init__(self, model_name="yolov8n.pt", confidence_threshold=0.4):
+        self.model = YOLO(model_name)
+        self.confidence_threshold = confidence_threshold
 
     def detect_on_frames(self, frames_dir, output_json_path):
-        """Детекция всех .jpg в frames_dir, сохранение результата в JSON"""
-        detections = {}  
-        image_files = [f for f in os.listdir(frames_dir) if f.endswith('.jpg')]
+        """Detect objects in all .jpg frames and save results to JSON."""
+        detections = {}
+
+        image_files = sorted(
+            f for f in os.listdir(frames_dir)
+            if f.endswith(".jpg")
+        )
+
+        total_detections = 0
+
         for img_file in tqdm(image_files, desc="Detecting"):
             img_path = os.path.join(frames_dir, img_file)
-            results = self.model(img_path)[0] 
+            results = self.model(img_path)[0]
+
             detections[img_file] = []
+
             for box in results.boxes:
                 cls_id = int(box.cls[0])
                 class_name = results.names[cls_id]
                 conf = float(box.conf[0])
+
+                if conf < self.confidence_threshold:
+                    continue
+
                 x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+
                 detections[img_file].append({
                     "class": class_name,
                     "confidence": conf,
                     "bbox": [x1, y1, x2, y2]
                 })
-        with open(output_json_path, 'w') as f:
+
+                total_detections += 1
+
+        with open(output_json_path, "w") as f:
             json.dump(detections, f, indent=2)
+
+        print(f"Processed frames: {len(image_files)}")
+        print(f"Detected objects: {total_detections}")
+
         return detections
