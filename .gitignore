@@ -9,5 +9,5 @@ venv/
 data/frames/
 data/detections.json
 data/index.json
-
+streamlit_data/
 *.pt
