@@ -47,7 +47,9 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Перед запуском необходимо указать путь к видео в файле `main.py`
-Для запуска веб-версии используется Streamlit: streamlit run app.py
-Демонстрации в папке assets
+Перед запуском необходимо указать путь к видео в файле `main.py`.
+
+Для запуска веб-версии используется Streamlit: `streamlit run app.py`.
+
+Демонстрации в папке assets.
 
